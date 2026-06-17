@@ -33,12 +33,14 @@ const BookRoom = () => {
       return;
     }
     fetchRoom();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, isAuthenticated, navigate]);
 
   useEffect(() => {
     if (room && formData.checkIn && formData.checkOut) {
       checkRoomAvailability();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.checkIn, formData.checkOut, room]);
 
   const fetchRoom = async () => {
@@ -110,7 +112,7 @@ const BookRoom = () => {
         specialRequests: formData.specialRequests
       };
 
-      const response = await bookingsAPI.create(bookingData);
+      await bookingsAPI.create(bookingData);
       setSuccess('Booking created successfully!');
       
       setTimeout(() => {

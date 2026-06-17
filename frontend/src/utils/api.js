@@ -49,7 +49,25 @@ export const roomsAPI = {
   getAll: (params) => api.get('/rooms', { params }),
   getById: (id) => api.get(`/rooms/${id}`),
   create: (data) => api.post('/rooms', data),
+  createWithImages: (formData) => {
+    const token = localStorage.getItem('token');
+    return axios.post(`${API_URL}/rooms`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  },
   update: (id, data) => api.put(`/rooms/${id}`, data),
+  updateWithImages: (id, formData) => {
+    const token = localStorage.getItem('token');
+    return axios.put(`${API_URL}/rooms/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  },
   delete: (id) => api.delete(`/rooms/${id}`)
 };
 

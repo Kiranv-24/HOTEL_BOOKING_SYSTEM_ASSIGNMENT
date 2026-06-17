@@ -39,6 +39,8 @@ A full-stack hotel booking application with React, Node.js, Express, and MongoDB
 - **Express-validator**: Input validation
 - **Helmet**: Security headers
 - **Rate-limiting**: DDoS protection
+- **Cloudinary**: Cloud image storage and management
+- **Multer**: File upload handling
 
 ### Frontend
 - **React**: UI library
@@ -239,7 +241,7 @@ The system implements robust double booking prevention through:
 - View all bookings
 - Manage room availability
 
-## Security Best Practices Implemented
+## Security  Practices Implemented
 
 1. **Password Security**: Passwords are hashed using bcrypt with salt rounds
 2. **JWT Tokens**: Secure token-based authentication with expiration
@@ -267,26 +269,66 @@ The system implements robust double booking prevention through:
 
 1. Register a user with admin role (manually set in database or create admin endpoint)
 2. Access `/admin` to manage rooms and view all bookings
-3. Add new rooms with different types and prices
-4. View all system bookings
+3. Add new rooms with different types, prices, and images
+4. Upload room images (up to 5 images per room, max 5MB each)
+5. View all system bookings
 
 
 ## Assumptions Made During Development
 
 1. **MongoDB Local Installation**: The application assumes MongoDB is installed locally and running on the default port 27017. For production, this should be replaced with a cloud MongoDB instance (MongoDB Atlas).
 
-2. **Single Admin User**: The system currently uses a single admin account created through the seed script. In a production environment, a more sophisticated user management system with multiple admin roles would be appropriate.
+2. **Seed Data for Development**: The system includes a seed script (`backend/seed.js`) that populates the database with default rooms and admin credentials for testing purposes. In a production environment, this seed script should not be used, and rooms should be managed through the admin panel only. The default admin credentials (email: admin@hotel.com, password: admin123) should be changed immediately in production.
 
-3. **Currency**: All prices are in Indian Rupees (₹). The system does not currently support multi-currency functionality.
+3. **Single Admin User**: The system currently uses a single admin account created through the seed script. In a production environment, a more sophisticated user management system with multiple admin roles would be appropriate.
 
-4. **Time Zone**: All date operations use the local system time zone. For a global application, UTC time handling with user-specific time zones would be required.
+4. **Currency**: All prices are in Indian Rupees (₹). The system does not currently support multi-currency functionality.
 
-5. **Email Notifications**: The system does not currently send email notifications for bookings, confirmations, or cancellations. This would require integration with an email service.
+5. **Time Zone**: All date operations use the local system time zone. For a global application, UTC time handling with user-specific time zones would be required.
 
-6. **Payment Processing**: No actual payment processing is implemented. The booking system assumes payment is handled externally.
+6. **Email Notifications**: The system does not currently send email notifications for bookings, confirmations, or cancellations. This would require integration with an email service.
 
-7. **Room Images**: The system uses placeholder icons for room images. A production version would require image upload and storage functionality.
+7. **Payment Processing**: No actual payment processing is implemented. The booking system assumes payment is handled externally.
 
+8. **Cloudinary Configuration**: The image upload feature requires Cloudinary credentials. Users must configure their Cloudinary account in the `.env` file for image upload functionality to work.
+
+
+## Cloudinary Image Upload Feature
+
+The application includes a room image upload feature powered by Cloudinary:
+
+### Features
+- **Multi-Image Upload**: Admins can upload up to 5 images per room
+- **Image Optimization**: Automatic image resizing and optimization via Cloudinary transformations
+- **File Validation**: Restricts uploads to JPG, JPEG, PNG, and WEBP formats (max 5MB per image)
+- **Cloud Storage**: Images are stored in Cloudinary cloud storage with automatic CDN delivery
+- **Image Management**: Old images are automatically deleted from Cloudinary when rooms are updated or deleted
+
+### Setup Instructions
+
+1. **Create a Cloudinary Account**:
+   - Sign up at [cloudinary.com](https://cloudinary.com)
+   - Navigate to the Dashboard to get your credentials
+
+2. **Configure Environment Variables**:
+   Add your Cloudinary credentials to `backend/.env`:
+   ```
+   CLOUDINARY_CLOUD_NAME=your-cloud-name
+   CLOUDINARY_API_KEY=your-api-key
+   CLOUDINARY_API_SECRET=your-api-secret
+   ```
+
+3. **Image Upload Process**:
+   - Admin users can upload images when creating or editing rooms
+   - Images are automatically uploaded to Cloudinary's `hotel-booking/rooms` folder
+   - Image URLs are stored in the Room model's `images` array
+   - Images are optimized to 800x600 pixels with automatic quality adjustment
+
+### Technical Implementation
+- **Backend**: Uses Multer with Cloudinary storage for file handling
+- **Frontend**: FormData API for multipart file uploads
+- **Storage**: Cloudinary cloud storage with automatic CDN
+- **Security**: File type validation and size limits enforced on both client and server
 
 ## AI-Assisted Development
 
@@ -303,4 +345,5 @@ This project was developed with the assistance of AI coding tools (Cascade AI). 
 - Restructuring the backend to follow MVC pattern required careful separation of business logic from route handlers
 - Implementing robust double booking prevention required complex overlap detection algorithms
 
+The AI assistance was particularly valuable in maintaining code consistency across the full-stack application and ensuring that security best practices were implemented from the start.
 The AI assistance was particularly valuable in maintaining code consistency across the full-stack application and ensuring that security best practices were implemented from the start.

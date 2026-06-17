@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const { protect, authorize } = require('../middleware/auth');
+const { upload } = require('../config/cloudinary');
 const {
   getAllRooms,
   getRoomById,
@@ -26,6 +27,7 @@ router.get('/:id', getRoomById);
 router.post('/', [
   protect,
   authorize('admin'),
+  upload.array('images', 5),
   body('roomNumber')
     .trim()
     .notEmpty().withMessage('Room number is required'),
@@ -58,6 +60,7 @@ router.post('/', [
 router.put('/:id', [
   protect,
   authorize('admin'),
+  upload.array('images', 5),
   body('roomNumber')
     .optional()
     .trim()

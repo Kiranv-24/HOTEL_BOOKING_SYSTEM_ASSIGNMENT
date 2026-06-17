@@ -1,4 +1,5 @@
 const Room = require('../models/Room');
+const { cloudinary } = require('../config/cloudinary');
 
 // @desc    Get all rooms
 // @route   GET /api/rooms
@@ -90,6 +91,11 @@ exports.createRoom = async (req, res) => {
       });
     }
 
+    // Handle image uploads
+    if (req.files && req.files.length > 0) {
+      req.body.images = req.files.map(file => file.path);
+    }
+
     const room = await Room.create(req.body);
 
     res.status(201).json({
@@ -132,6 +138,22 @@ exports.updateRoom = async (req, res) => {
       }
     }
 
+    // Handle image uploads
+    if (req.files && req.files.length > 0) {
+      // Delete old images from Cloudinary if they exist
+      if (room.images && room.images.length > 0) {
+        for (const imageUrl of room.images) {
+          try {
+            const publicId = imageUrl.split('/').pop().split('.')[0];
+            await cloudinary.uploader.destroy(`hotel-booking/rooms/${publicId}`);
+          } catch (err) {
+            console.error('Error deleting old image:', err);
+          }
+        }
+      }
+      req.body.images = req.files.map(file => file.path);
+    }
+
     room = await Room.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true
@@ -164,6 +186,18 @@ exports.deleteRoom = async (req, res) => {
         success: false,
         message: 'Room not found'
       });
+    }
+
+    // Delete images from Cloudinary if they exist
+    if (room.images && room.images.length > 0) {
+      for (const imageUrl of room.images) {
+        try {
+          const publicId = imageUrl.split('/').pop().split('.')[0];
+          await cloudinary.uploader.destroy(`hotel-booking/rooms/${publicId}`);
+        } catch (err) {
+          console.error('Error deleting image:', err);
+        }
+      }
     }
 
     await room.deleteOne();

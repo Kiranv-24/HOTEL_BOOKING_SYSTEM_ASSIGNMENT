@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { roomsAPI, bookingsAPI } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
-import { Plus, Edit, Trash2, Calendar, Bed, Users, IndianRupee, AlertCircle, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Calendar, Bed, Users, IndianRupee, AlertCircle, X, Upload, Image as ImageIcon } from 'lucide-react';
 
 const AdminPanel = () => {
   const { user, isAuthenticated } = useAuth();
@@ -25,6 +25,8 @@ const AdminPanel = () => {
     description: '',
     isAvailable: true
   });
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [imagePreview, setImagePreview] = useState([]);
 
   useEffect(() => {
     if (!isAuthenticated || user?.role !== 'admin') {
@@ -32,6 +34,7 @@ const AdminPanel = () => {
       return;
     }
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, user, navigate, activeTab]);
 
   const fetchData = async () => {
@@ -64,6 +67,8 @@ const AdminPanel = () => {
       description: '',
       isAvailable: true
     });
+    setSelectedImages([]);
+    setImagePreview([]);
     setShowRoomModal(true);
   };
 
@@ -78,6 +83,8 @@ const AdminPanel = () => {
       description: room.description || '',
       isAvailable: room.isAvailable
     });
+    setSelectedImages([]);
+    setImagePreview(room.images || []);
     setShowRoomModal(true);
   };
 
@@ -95,6 +102,25 @@ const AdminPanel = () => {
     }
   };
 
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 5) {
+      alert('Maximum 5 images allowed');
+      return;
+    }
+    setSelectedImages(files);
+    
+    const previews = files.map(file => URL.createObjectURL(file));
+    setImagePreview(previews);
+  };
+
+  const removeImage = (index) => {
+    const newSelectedImages = selectedImages.filter((_, i) => i !== index);
+    const newImagePreview = imagePreview.filter((_, i) => i !== index);
+    setSelectedImages(newSelectedImages);
+    setImagePreview(newImagePreview);
+  };
+
   const handleRoomSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -110,17 +136,40 @@ const AdminPanel = () => {
         amenities: amenitiesArray
       };
 
-      if (editingRoom) {
-        const response = await roomsAPI.update(editingRoom._id, roomData);
-        setRooms(rooms.map(room => 
-          room._id === editingRoom._id ? response.data.data.room : room
-        ));
+      let response;
+      if (selectedImages.length > 0) {
+        const formData = new FormData();
+        Object.keys(roomData).forEach(key => {
+          formData.append(key, roomData[key]);
+        });
+        selectedImages.forEach(image => {
+          formData.append('images', image);
+        });
+
+        if (editingRoom) {
+          response = await roomsAPI.updateWithImages(editingRoom._id, formData);
+          setRooms(rooms.map(room => 
+            room._id === editingRoom._id ? response.data.data.room : room
+          ));
+        } else {
+          response = await roomsAPI.createWithImages(formData);
+          setRooms([...rooms, response.data.data.room]);
+        }
       } else {
-        const response = await roomsAPI.create(roomData);
-        setRooms([...rooms, response.data.data.room]);
+        if (editingRoom) {
+          response = await roomsAPI.update(editingRoom._id, roomData);
+          setRooms(rooms.map(room => 
+            room._id === editingRoom._id ? response.data.data.room : room
+          ));
+        } else {
+          response = await roomsAPI.create(roomData);
+          setRooms([...rooms, response.data.data.room]);
+        }
       }
 
       setShowRoomModal(false);
+      setSelectedImages([]);
+      setImagePreview([]);
       setError('');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to save room');
@@ -441,6 +490,52 @@ const AdminPanel = () => {
                     onChange={(e) => setRoomFormData({ ...roomFormData, description: e.target.value })}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Room Images (max 5 images)
+                  </label>
+                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-500 transition-colors">
+                    <div className="space-y-1 text-center">
+                      <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                      <div className="flex text-sm text-gray-600">
+                        <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                          <span>Upload files</span>
+                          <input
+                            id="file-upload"
+                            name="file-upload"
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            className="sr-only"
+                            onChange={handleImageChange}
+                          />
+                        </label>
+                        <p className="pl-1">or drag and drop</p>
+                      </div>
+                      <p className="text-xs text-gray-500">PNG, JPG, WEBP up to 5MB each</p>
+                    </div>
+                  </div>
+                  {imagePreview.length > 0 && (
+                    <div className="mt-4 grid grid-cols-5 gap-2">
+                      {imagePreview.map((preview, index) => (
+                        <div key={index} className="relative">
+                          <img
+                            src={preview}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-20 object-cover rounded-md"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center">
                   <input
