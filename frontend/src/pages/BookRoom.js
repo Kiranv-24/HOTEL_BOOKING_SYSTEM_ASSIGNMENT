@@ -175,10 +175,33 @@ const BookRoom = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Room Details */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-48 rounded-lg flex items-center justify-center mb-6">
-              <Calendar className="h-16 w-16 text-white opacity-80" />
+            <div className="h-48 bg-gray-200 rounded-lg mb-6 relative overflow-hidden">
+              {room.images && room.images.length > 0 ? (
+                <img
+                  src={room.images[0]}
+                  alt={`Room ${room.roomNumber}`}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-full flex items-center justify-center">
+                  <Calendar className="h-16 w-16 text-white opacity-80" />
+                </div>
+              )}
             </div>
-            
+
+            {room.images && room.images.length > 1 && (
+              <div className="grid grid-cols-4 gap-2 mb-6">
+                {room.images.slice(1, 5).map((image, index) => (
+                  <img
+                    key={index}
+                    src={image}
+                    alt={`Room ${room.roomNumber} - Image ${index + 2}`}
+                    className="w-full h-20 object-cover rounded-md"
+                  />
+                ))}
+              </div>
+            )}
+
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               Room {room.roomNumber}
             </h1>

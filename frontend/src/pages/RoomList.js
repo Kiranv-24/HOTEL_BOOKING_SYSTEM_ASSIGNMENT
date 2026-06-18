@@ -139,8 +139,18 @@ const RoomList = () => {
                 key={room._id}
                 className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
               >
-                <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-48 flex items-center justify-center">
-                  <Bed className="h-16 w-16 text-white opacity-80" />
+                <div className="h-48 bg-gray-200 relative">
+                  {room.images && room.images.length > 0 ? (
+                    <img
+                      src={room.images[0]}
+                      alt={`Room ${room.roomNumber}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-full flex items-center justify-center">
+                      <Bed className="h-16 w-16 text-white opacity-80" />
+                    </div>
+                  )}
                 </div>
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-2">

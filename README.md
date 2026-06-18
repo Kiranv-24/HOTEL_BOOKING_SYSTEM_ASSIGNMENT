@@ -2,6 +2,8 @@
 
 A full-stack hotel booking application with React, Node.js, Express, and MongoDB. Features include user authentication, room management, booking system with double booking prevention, and admin panel.
 
+**Live Demo**: [https://hotel-booking-system-assignment-otm.vercel.app/](https://hotel-booking-system-assignment-otm.vercel.app/)
+
 ## Features
 
 ### User Features
