@@ -104,7 +104,7 @@ ASSIGNMENT_COMPANY/
 
 ### Prerequisites
 - Node.js (v14 or higher)
-- MongoDB (installed and running)
+- MongoDB Atlas account (or local MongoDB installation)
 - npm or yarn
 
 ### Backend Setup
@@ -128,13 +128,27 @@ cp .env.example .env
 4. Edit `.env` file with your configuration:
 ```
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/hotel-booking
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.dn8pg6h.mongodb.net/
 JWT_SECRET=your-secret-key-change-this-in-production
 JWT_EXPIRE=7d
 NODE_ENV=development
+
+# Cloudinary Configuration (for room image upload)
+CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
+CLOUDINARY_API_KEY=your-cloudinary-api-key
+CLOUDINARY_API_SECRET=your-cloudinary-api-secret
 ```
 
-5. Start the backend server:
+**Note**: Replace `<username>` and `<password>` with your MongoDB Atlas credentials. For local development, use `mongodb://localhost:27017/hotel-booking` instead.
+
+5. (Optional) Seed the database with sample data:
+```bash
+node seed.js
+```
+
+This will create an admin user and sample rooms. **Note**: Only run this for development/testing purposes. Do not run in production.
+
+6. Start the backend server:
 ```bash
 npm start
 ```
