@@ -294,7 +294,7 @@ The system implements robust double booking prevention through:
 
 1. **MongoDB Local Installation**: The application assumes MongoDB is installed locally and running on the default port 27017. For production, this should be replaced with a cloud MongoDB instance (MongoDB Atlas).
 
-2. **Seed Data for Development**: The system includes a seed script (`backend/seed.js`) that populates the database with default rooms and admin credentials for testing purposes. In a production environment, this seed script should not be used, and rooms should be managed through the admin panel only. The default admin credentials (email: admin@hotel.com, password: admin123) should be changed immediately in production.
+2. **Seed Data for Development**: The system includes a seed script (`backend/seed.js`) that populates the database with default rooms and admin credentials for testing purposes. In a production environment, this seed script should not be used, and rooms should be managed through the admin panel only. The default admin credentials (email: admin@hotel.com, password: admin123).
 
 3. **Single Admin User**: The system currently uses a single admin account created through the seed script. In a production environment, a more sophisticated user management system with multiple admin roles would be appropriate.
 
